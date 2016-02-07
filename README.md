@@ -11,3 +11,6 @@ The function readBoard(image) processes the image and returns a numpy array repr
 The function watchBoard() shows a video feed with the corners of the board marked with red dots.
 It also shows a diagram of the current board position.
 These update after every time motion is detected around the board.
+
+Here's a screenshot of watchBoard() at work:
+![screenshot](https://raw.githubusercontent.com/daniel-bandstra/watchGo/master/screenshot.png)
