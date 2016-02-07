@@ -82,9 +82,9 @@ def readBoard(image):
     # an empty intersection:
     emptyRectangles = empty_cascade.detectMultiScale(image, 1.08, 1)
     # a black stone:
-    blackRectangles = black_cascade.detectMultiScale(image, 1.3, 1)
+    blackRectangles = black_cascade.detectMultiScale(image, 1.1, 1)
     # or a white stone:
-    whiteRectangles = white_cascade.detectMultiScale(image, 1.3, 1)
+    whiteRectangles = white_cascade.detectMultiScale(image, 1.1, 1)
 
     # cascade classifiers return a rectangle around the found object;
     # the center points of these rectangles are what we actually want:
