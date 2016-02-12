@@ -106,25 +106,25 @@ def readBoard(image):
 
     # for diagnostic purposes, it can be useful to draw all the points
     # noted by the cascade classifier. uncomment the following to do this:
-##    for c in empties:
-##        cv2.circle(image,
-##                   (int(round(c[0])), int(round(c[1]))),
-##                   3,
-##                   (0, 255, 255),
-##                   -1)
-##    for c in blacks:
-##        cv2.circle(image,
-##                   (int(round(c[0])), int(round(c[1]))),
-##                   3,
-##                   (0, 255, 0),
-##                   -1)
-##    for c in whites:
-##        cv2.circle(image,
-##                   (int(round(c[0])), int(round(c[1]))),
-##                   3,
-##                   (0, 0, 255),
-##                   -1)
-##    cv2.imshow("dots", image)
+    for c in empties:
+        cv2.circle(image,
+                   (int(round(c[0])), int(round(c[1]))),
+                   3,
+                   (0, 255, 255),
+                   -1)
+    for c in blacks:
+        cv2.circle(image,
+                   (int(round(c[0])), int(round(c[1]))),
+                   3,
+                   (0, 255, 0),
+                   -1)
+    for c in whites:
+        cv2.circle(image,
+                   (int(round(c[0])), int(round(c[1]))),
+                   3,
+                   (0, 0, 255),
+                   -1)
+    cv2.imshow("dots", image)
 
     # now find the corners of a rectangle around those spots
     # that seem most likely to be the board & any stones on it
@@ -137,31 +137,32 @@ def readBoard(image):
     # approx returns maybe a rectangle with a corner or two lopped off
     imgCorners = fourCorners(approx) # so un-lop those corners
 
-    # unwarp the stone positions and mark them in the output
-    flatCorners = np.array([[0, 0],
-                            [boardSize - 1, 0],
-                            [boardSize - 1, boardSize - 1],
-                            [0, boardSize - 1]],
-                           dtype="float32")
-    persp = cv2.getPerspectiveTransform(imgCorners, flatCorners)
-    if len(blacks) > 0:
-        blacks = np.array(blacks, dtype="float32")
-        blacks = np.array([blacks])
-        blacksFlat = cv2.perspectiveTransform(blacks, persp)
-        for i in blacksFlat[0]:
-            x = int(round(i[0]))
-            y = int(round(i[1]))
-            if x >= 0 and x < boardSize and y >= 0 and y < boardSize:
-                output[x][y] = 1
-    if len(whites) > 0:
-        whites = np.array(whites, dtype="float32")
-        whites = np.array([whites])
-        whitesFlat = cv2.perspectiveTransform(whites, persp)
-        for i in whitesFlat[0]:
-            x = int(round(i[0]))
-            y = int(round(i[1]))
-            if x >= 0 and x < boardSize and y >= 0 and y < boardSize:
-                output[x][y] = 2
+    if imgCorners is not None and len(imgCorners) > 3:
+        # unwarp the stone positions and mark them in the output
+        flatCorners = np.array([[0, 0],
+                                [boardSize - 1, 0],
+                                [boardSize - 1, boardSize - 1],
+                                [0, boardSize - 1]],
+                               dtype="float32")
+        persp = cv2.getPerspectiveTransform(imgCorners, flatCorners)
+        if len(blacks) > 0:
+            blacks = np.array(blacks, dtype="float32")
+            blacks = np.array([blacks])
+            blacksFlat = cv2.perspectiveTransform(blacks, persp)
+            for i in blacksFlat[0]:
+                x = int(round(i[0]))
+                y = int(round(i[1]))
+                if x >= 0 and x < boardSize and y >= 0 and y < boardSize:
+                    output[x][y] = 1
+        if len(whites) > 0:
+            whites = np.array(whites, dtype="float32")
+            whites = np.array([whites])
+            whitesFlat = cv2.perspectiveTransform(whites, persp)
+            for i in whitesFlat[0]:
+                x = int(round(i[0]))
+                y = int(round(i[1]))
+                if x >= 0 and x < boardSize and y >= 0 and y < boardSize:
+                    output[x][y] = 2
 
     return output, imgCorners
 
@@ -407,7 +408,7 @@ def watchBoard():
             if stillFrames == (bufSize + 1): # if the video stands still for long enough, read the board
                 board, imgCorners = readBoard(bkg)
                 cv2.imshow("board", drawBoard(board))
-                if imgCorners is not None: # look for movement around where the board is:
+                if imgCorners is not None and len(imgCorners) > 3: # look for movement around where the board is:
                     roi = np.zeros((h, w), dtype="uint8")
                     cv2.fillConvexPoly(roi, np.array(imgCorners, dtype="int32"), 1)
                     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (27, 27))
